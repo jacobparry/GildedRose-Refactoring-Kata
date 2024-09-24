@@ -143,4 +143,44 @@ defmodule GildedRoseTest do
       assert updated_item.sell_in == -2
     end
   end
+
+  describe "update_item_sell_in/1" do
+    test "doesn't change sell_in for Sulfuras" do
+      item = %Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 1, quality: 80}
+      updated_item = GildedRose.update_item_sell_in(item)
+      assert updated_item.sell_in == 1
+    end
+
+    test "decreases sell_in for all items" do
+      item = %Item{name: "foo", sell_in: 1, quality: 1}
+      updated_item = GildedRose.update_item_sell_in(item)
+      assert updated_item.sell_in == 0
+    end
+  end
+
+  describe "check_max_min_quality/1" do
+    test "quality can't be negative" do
+      item = %Item{name: "foo", sell_in: 1, quality: -1}
+      updated_item = GildedRose.check_max_min_quality(item)
+      assert updated_item.quality == 0
+    end
+
+    test "quality can't be more than 50" do
+      item = %Item{name: "foo", sell_in: 1, quality: 51}
+      updated_item = GildedRose.check_max_min_quality(item)
+      assert updated_item.quality == 50
+    end
+
+    test "Sulfuras is left alone" do
+      item = %Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 1, quality: 80}
+      updated_item = GildedRose.check_max_min_quality(item)
+      assert updated_item.quality == 80
+    end
+
+    test "quality between 0 and 50 is left alone" do
+      item = %Item{name: "foo", sell_in: 1, quality: 1}
+      updated_item = GildedRose.check_max_min_quality(item)
+      assert updated_item.quality == 1
+    end
+  end
 end
